@@ -19,7 +19,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o music-bot ./cmd/bot
 # 🧱 Etapa final: entorno de ejecución
 FROM alpine:latest
 
-# Agrega repositorio community para ffmpeg y opus
+# Agrega repositorio community y actualiza
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && \
     apk update && \
     apk add --no-cache \
@@ -32,7 +32,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/
     ca-certificates && \
     python3 -m ensurepip && \
     pip3 install --upgrade pip && \
-    pip3 install --no-cache-dir yt-dlp && \
+    pip3 install --break-system-packages yt-dlp && \
     addgroup -S botuser && \
     adduser -S botuser -G botuser
 
@@ -46,8 +46,7 @@ RUN chown -R botuser:botuser /app
 
 USER botuser
 
-# ❌ No pongas secretos en el Dockerfile
-# Usa variables de entorno en tiempo de ejecución (docker run -e ...)
+# Variables configurables en tiempo de ejecución
 ENV UNKNOWN_COMMANDS="ignore"
 
 CMD ["./music-bot"]
